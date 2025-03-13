@@ -23,6 +23,6 @@ func main() {
 	//       }
 	//       err := handler.Compute()
 
-	res, _ := lab2.PrefixToInfix("+ 2 2")
-	fmt.Println(res)
+	res, err := lab2.PrefixToInfix("/ 10 + 5 2")
+	fmt.Println(res, err)
 }
