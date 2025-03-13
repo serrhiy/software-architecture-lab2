@@ -2,6 +2,8 @@ package lab2
 
 import (
 	"errors"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -30,6 +32,18 @@ func isAlpha(char byte) bool {
 	return char >= 48 && char <= 57
 }
 
+func isValidInteger(number string) bool {
+	empty := len(number) == 0
+	startsWith0 := strings.HasPrefix(number, "0")
+	startsWithMinus0 := strings.HasPrefix(number, "-0")
+	startsWithPlus0 := strings.HasPrefix(number, "+0")
+	if empty || startsWith0 || startsWithMinus0 || startsWithPlus0 {
+		return false
+	}
+	_, err := strconv.Atoi(number)
+	return err == nil
+}
+
 func tokenize(source string) ([]Token, error) {
 	output := make([]Token, 0)
 	for index := len(source) - 1; index >= 0; index-- {
@@ -51,8 +65,11 @@ func tokenize(source string) ([]Token, error) {
 			}
 			char = source[index]
 		}
-		if (len(number) == 0) {
+		if len(number) == 0 {
 			return nil, errors.New("Invalid character: " + string(source[index]))
+		}
+		if !isValidInteger(number) {
+			return nil, errors.New("Invalid number: " + number)
 		}
 		index += 1;
 		output = append(output, Token{ NUMBER, number })
