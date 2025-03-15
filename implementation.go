@@ -28,6 +28,11 @@ type Token struct {
 	source string
 }
 
+type Component struct {
+	source string
+	isComposite bool
+}
+
 func isAlpha(char byte) bool {
 	return char >= 48 && char <= 57
 }
@@ -84,17 +89,26 @@ func PrefixToInfix(source string) (string, error) {
 	if validSource != nil {
 		return "", validSource
 	}
-	stack := make([]string, 0)
+	stack := make([]Component, 0)
 	for _, token := range tokens {
 		if token.kind == NUMBER {
-			stack = append(stack, token.source)
+			stack = append(stack, Component{ token.source, false })
 			continue
 		}
 		length := len(stack)
 		operand1, operand2 := stack[length - 1], stack[length - 2]
-		expression := operand1 + " " + token.source + " " + operand2
-		stack[length - 2] = expression
+		operand1Str, operand2Str := operand1.source, operand2.source
+		if token.kind == MUL || token.kind == DIV {
+			if operand1.isComposite {
+				operand1Str = "(" + operand1Str + ")"
+			}
+			if operand2.isComposite {
+				operand2Str = "(" + operand2Str + ")"
+			}
+		}
+		expression := operand1Str + " " + token.source + " " + operand2Str
+		stack[length - 2] = Component{ expression, true }
 		stack = stack[: length - 1]
 	}
-	return stack[0], nil
+	return stack[0].source, nil
 }
